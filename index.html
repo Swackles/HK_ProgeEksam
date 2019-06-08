@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>Programeerimise eksam</title>
+    <script>
+        /*
+         * loo klass Toode, millel on järgmised omadused: tootekood, nimi, hind, laoseis. Lisa klassile käsklus (meetod) laoseisu muutmiseks. Kontrolli, et laoseisu väärtust ei saaks muuta negatiivseks, ehk minimaalne laoseis on 0. Kontrollimiseks lisada objekt ja näidiskäsk.
+         * loo klass Pood, kus hoitakse kõiki tooteid, ning mille abil saab lisada uusi tooteid poodi. Lisa klassile Pood otsiToode meetod, mille abil saab otsida poest toodet tootekoodi alusel. Toote leidmisel tagastatakse toote objekt, kui ei leita, siis tagastatakse null. Kontrollimiseks lisada objekt ning näidiskäsud.
+         * lisa klassile Pood omadus "kassa" ning meetod toote müümiseks. Toote müümisel vähendatakse laoseisu ühe(1) võrra ning poe kassat suurendatakse toote hinna võrra, kusjuures meetod peab kontrollima, kas antud toote laoseis on suurem kui 0. Õnnestunud müügi korral tagastatakse objekt, mis sisaldab toote nime, müügihinda ning aega millal müük toimus. Ebaõnnestunud müügi korral tagastatakse false. Lisada näidiskäsud.
+        */
+    
+        function ranNum(places) {
+            return Math.floor(Math.random() * (10 ** places)) + 1
+        }
+
+        class Product {
+            constructor(code, name, price, storage = 0) {
+            this.code = code;
+            this.name = name;
+            this.price = price;
+            this.storage = storage;
+            }
+
+            changeStorage(amount) {
+                if(isNaN(amount) || (this.storage + amount) < 0) return false;
+                this.storage += amount;
+                return true;
+            }
+        }
+
+        class Store {
+            constructor() {
+                this.products = new Array();
+                this.cashRegister = 0;
+            }
+
+            addProduct(code, name, price, storage = 0) {
+                this.products.push(new Product(code, name, price, storage));
+                return true;
+            }
+
+            findProduct(code) {
+                var product = this.products.find(e => e.code == code)
+                return product ? product : null;
+            }
+
+            sellProduct(code) {
+                var product = this.findProduct(code);
+                if (product == null) return false;
+                if (!product.changeStorage(-1)) return false;
+
+                this.cashRegister += product.price;
+
+                return { name: product.name, price: product.price, transactionTime: new Date() };
+            }
+        }
+
+        function testProduct() {
+            var product = new Product(ranNum(20), "Saaremaa Vesi", 0.75, 20);
+            
+            if (!product.changeStorage(12)) console.error("Product.changeStorage() positiv number");
+            if (!product.changeStorage(-12)) console.error("Product.changeStorage() negativ number");
+            if (product.changeStorage(-30)) console.error("Product.changeStorage() negativ number too large");
+            if (product.changeStorage("testing")) console.error("Product.changeStorage() input string");
+        }
+
+        function testStore() {
+            var store = new Store();
+
+            if (!store.addProduct("100231", "Saaremaa Vesi", 0.75, 20)) console.error("Store.addProduct() insert product");
+            if (store.findProduct("100231") == null) console.error("Store.findProduct() should find object");
+            if (store.findProduct("1201211212") != null) console.error("Store.findProduct() found object that shouldn't be found");
+            if (typeof store.sellProduct("13212312") == "object") console.error("Store.findProduct() sold procut that dosen't exist");
+            if (typeof store.sellProduct("100231") != "object") console.error("Store.findProduct() wasn't able to sell prodcut");
+            store.findProduct("100231").storage = 0;
+            if (typeof store.sellProduct("100231") == "object") console.error("Store.findProduct() sold procut that is out of stock");
+
+        }
+
+        function test() {
+            testProduct();
+            testStore();
+        }
+    </script>
+</head>
+<body>
+    
+</body>
+</html>
